@@ -1,0 +1,14 @@
+#  pip install virtualenv
+#  python -m venv env
+#  env\Scripts\activate
+#  pip install -r requirements.txt
+
+flask
+Flask-Session
+requests
+msal
+python-dotenv
+flask-sendgrid
+
+#https://github.com/Microsoft/python-sample-vscode-flask-tutorial
+#https://www.fullstackpython.com/blog/add-user-authentication-flask-apps-okta.html

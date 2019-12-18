@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="jumbotron">
+    <h1>Customer Manage Subscription</h1>
+</div>
+
+<div class="row">
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+</div>
+
+<form method="post" style="font-size: 20px;">
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Subscription Name:</label>
+        <div class="col-sm-9">{{ subscription.name }}</div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Subscription Id:</label>
+        <div class="col-sm-9">{{ subscription.id }}
+            <input type="hidden" id="subscription_id" name="subscription_id" value={{ subscription.id }}>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Current Offer:</label>
+        <div class="col-sm-9">{{ subscription.offerId }}</div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Current Plan:</label>
+        <div class="col-sm-9">{{ subscription.planId }}
+            <input type="hidden"  id="subscription_plan_id" name="subscription_plan_id" value="{{ subscription.planId }}">
+        </div>
+    </div>
+    {% if subscription.saasSubscriptionStatus != 'PendingFulfillmentStart'%}
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Available Plans:</label>
+            <div class="col-sm-9">
+                <select name="selectedplan" class="form-control" width="300px">
+                    {% for key, plans in available_plans.items() %}
+                        {% for item in plans %}
+                            {% if item.planId != subscription.planId %}
+                                <option value="{{ item.planId }}">{{ item.planId }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    {% endif %}
+        
+        <div class="form-group row">
+        {% if subscription.saasSubscriptionStatus == 'PendingFulfillmentStart'%}
+            <div class="col-sm-10 offset-sm-2">
+                <button type="submit" class="btn btn-primary" name="activate" value="activate">Request Activate</button>
+            </div>
+        {% else %}
+            <div class="col-sm-10 offset-sm-2">
+                <button type="submit" class="btn btn-primary" name="update" value="update">Request Update</button>
+            </div>
+        {% endif %}    
+        </div>
+</form>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+<div class="jumbotron">
+    <h1>Support</h1>
+</div>
+
+<div class="row">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+          <ul class="list-group">
+          {% for category, message in messages %}
+              <li class="list-group-item list-group-item-danger">{{ message }}</li>
+          {% endfor %}
+          </ul>
+      {% endif %}
+  {% endwith %}
+  </div>
+  
+<form method="post" style="font-size: 20px;">
+    <div class="form-group row">
+      <label for="email">Support Email address:</label>
+      <input type="email" class="form-control" id="email"  name="email">
+    </div>
+    <div class="form-group row">
+      <label for="message">Message:</label>
+      <textarea class="form-control" id="message" name="message" rows="5" cols="100"></textarea>
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+{% endblock %}
