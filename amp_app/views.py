@@ -29,6 +29,8 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get("user"):
+            global requested_url
+            requested_url = request.url
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
@@ -39,7 +41,10 @@ def login_required(f):
 # -----------------------------------------------------------
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template(constant._404_PAGE, user=session["user"]), 404
+    if session.get("user"):
+        return render_template(constant._404_PAGE, user=session["user"]), 404
+    else:
+        return render_template(constant._404_UNAUTH_PAGE), 404
 
 
 # -----------------------------------------------------------
@@ -66,6 +71,8 @@ def login():
         return redirect(auth_url, code=302)
     else:
         global requested_url
+        if not requested_url:
+            abort(404)
         return redirect(requested_url)
 
 
@@ -96,7 +103,8 @@ def authorized():
 @app.route("/landingpage", methods=['GET', 'POST'])
 @login_required
 def landingpage():
-
+    global requested_url
+    requested_url = ''
     token = request.args.get('token')
     subscription = amprepo.get_subscriptionid_by_token(token)
     if not token or 'id' not in subscription:
@@ -142,6 +150,8 @@ def landingpage():
 @app.route("/support", methods=['GET', 'POST'])
 @login_required
 def support():
+    global requested_url
+    requested_url = ''
     if request.method == 'POST':
         replyEmail = request.form['email']
         question = request.form['message']
@@ -171,14 +181,3 @@ def logout():
         "?post_logout_redirect_uri=" + url_for("login",
                                                _external=True,
                                                _scheme=app_config.HTTP_SCHEME))
-
-
-@app.before_request
-def before_request_func():
-    global requested_url
-    auth_endpoint_list = ['authorized', 'login', 'webhook']
-    if not session.get("user") and request.endpoint not in auth_endpoint_list:
-        requested_url = request.url
-
-    if session.get("user") and request.endpoint not in auth_endpoint_list:
-        requested_url = None

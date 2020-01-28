@@ -3,6 +3,7 @@ from . import app_config
 CUSTOMER_MANAGE_SUBSCRIPTION_PAGE = 'managesubscriptioncustomer.html'
 ERROR_PAGE = 'error.html'
 _404_PAGE = '404.html'
+_404_UNAUTH_PAGE = '404_unauth.html'
 _500_PAGE = '500.HTML'
 
 RESOLVE_ENDPOINT = f"{app_config.MARKETPLACEAPI_ENDPOINT}resolve{app_config.MARKETPLACEAPI_API_VERSION}"
