@@ -28,6 +28,7 @@ if __name__ != '__main__':
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        app.logger.error('Log '+request.url)
         if not session.get("user"):
             global requested_url
             requested_url = request.url
