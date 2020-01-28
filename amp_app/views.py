@@ -28,9 +28,10 @@ if __name__ != '__main__':
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        app.logger.error('Log '+request.url)
+        app.logger.error('login_required '+request.url)
         if not session.get("user"):
             global requested_url
+            app.logger.error('login_required '+requested_url)
             requested_url = request.url
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
@@ -72,6 +73,7 @@ def login():
         return redirect(auth_url, code=302)
     else:
         global requested_url
+        app.logger.error('login '+requested_url)
         if not requested_url:
             abort(404)
         return redirect(requested_url)
@@ -105,6 +107,7 @@ def authorized():
 @login_required
 def landingpage():
     global requested_url
+    app.logger.error('landingpage '+requested_url)
     requested_url = ''
     token = request.args.get('token')
     subscription = amprepo.get_subscriptionid_by_token(token)
@@ -152,6 +155,7 @@ def landingpage():
 @login_required
 def support():
     global requested_url
+    app.logger.error('support '+requested_url)
     requested_url = ''
     if request.method == 'POST':
         replyEmail = request.form['email']
