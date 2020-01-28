@@ -1,4 +1,4 @@
-from flask import (redirect, render_template, request, session, url_for, flash, abort)
+from flask import (redirect, render_template, request, session, url_for, flash, abort, g)
 from flask_session import Session
 from . import amprepo, app_config, constant, utils, app
 from functools import wraps
@@ -9,7 +9,6 @@ import uuid
 
 app.config.from_object(app_config)
 Session(app)
-requested_url = ''
 
 
 # -----------------------------------------------------------
@@ -28,11 +27,10 @@ if __name__ != '__main__':
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        app.logger.error('login_required '+request.url)
+        app.logger.error('login_required ' + request.url)
         if not session.get("user"):
-            global requested_url
-            requested_url = request.url
-            app.logger.error('login_required '+requested_url)
+            g.requested_url = request.url
+            app.logger.error('login_required ' + g.requested_url)
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
@@ -72,11 +70,10 @@ def login():
                                              _scheme=app_config.HTTP_SCHEME))
         return redirect(auth_url, code=302)
     else:
-        global requested_url
-        app.logger.error('login '+requested_url)
-        if not requested_url:
+        app.logger.error('login ' + g.requested_url)
+        if not g.requested_url:
             abort(404)
-        return redirect(requested_url)
+        return redirect(g.requested_url)
 
 
 # -------------------------------------------------------------------------
@@ -106,9 +103,8 @@ def authorized():
 @app.route("/landingpage", methods=['GET', 'POST'])
 @login_required
 def landingpage():
-    global requested_url
-    app.logger.error('landingpage '+requested_url)
-    requested_url = ''
+    app.logger.error('landingpage '+ g.requested_url)
+    g.requested_url = ''
     token = request.args.get('token')
     subscription = amprepo.get_subscriptionid_by_token(token)
     if not token or 'id' not in subscription:
@@ -154,9 +150,8 @@ def landingpage():
 @app.route("/support", methods=['GET', 'POST'])
 @login_required
 def support():
-    global requested_url
-    app.logger.error('support '+requested_url)
-    requested_url = ''
+    app.logger.error('support ' + g.requested_url)
+    g.requested_url = ''
     if request.method == 'POST':
         replyEmail = request.form['email']
         question = request.form['message']
