@@ -31,8 +31,8 @@ def login_required(f):
         app.logger.error('login_required '+request.url)
         if not session.get("user"):
             global requested_url
-            app.logger.error('login_required '+requested_url)
             requested_url = request.url
+            app.logger.error('login_required '+requested_url)
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
